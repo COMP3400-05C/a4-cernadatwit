@@ -1,48 +1,43 @@
+#!/usr/bin/env bats
+load 'test_helpers'
+
+
 setup() {
-    if [ -d "/usr/lib/bats" ]; then
-        load "/usr/lib/bats/bats-support/load"
-        load "/usr/lib/bats/bats-assert/load"
-    elif [ -d "/opt/homebrew/lib" ]; then
-        load "/opt/homebrew/lib/bats-support/load"
-        load "/opt/homebrew/lib/bats-assert/load"
-    elif [ -d "/usr/local/lib" ]; then
-        load "/usr/local/lib/bats-support/load"
-        load "/usr/local/lib/bats-assert/load"
-    fi
     export BATS_TEST_TIMEOUT=10
-
-    PATH="$(pwd)/build:$PATH"
 }
 
-@test "./build/parta Hello" {
+@test "parta with single argument 'Hello'" {
     run parta Hello
-    assert_output HELLO
-    assert [ "$status" -eq 0 ]                             # Assert if exit status matches
+    assert_output "HELLO"
+    assert_success
 }
 
-@test "./build/parta HowDY" {
+@test "parta with single argument 'HowDY'" {
     run parta HowDY
-    assert_output HOWDY
-    assert [ "$status" -eq 0 ]                             # Assert if exit status matches
+    assert_output "HOWDY"
+    assert_success
 }
-@test "./build/parta Goodbye" {
-    run parta Goodbye
-    assert_output GOODBYE
-    assert [ "$status" -eq 0 ]                             # Assert if exit status matches
-}
-@test "./build/parta Hello Goodbye" {
-    run parta Hello,Goodbye
-    assert_output HELLO,GOODBYE
-    assert [ "$status" -eq 0 ]                             # Assert if exit status matches
-}
-@test "./build/parta a b c d e f" {
-    run parta A B C D E F
-    assert_output A,B,C,D,E,F
-    assert [ "$status" -eq 0 ]                             # Assert if exit status matches
-}
-@test "parta" {
-    run parta
 
-    assert_output "ERROR: No arguments"                    # Assert if output matches
-    assert [ "$status" -eq 1 ]                             # Assert if exit status matches
+@test "parta with single argument 'Goodbye'" {
+    run parta Goodbye
+    assert_output "GOODBYE"
+    assert_success
+}
+
+@test "parta with multiple arguments 'Hello Goodbye'" {
+    run parta Hello Goodbye
+    assert_output "HELLO,GOODBYE"
+    assert_success
+}
+
+@test "parta with multiple arguments 'A B C D E F'" {
+    run parta A B C D E F
+    assert_output "A,B,C,D,E,F"
+    assert_success
+}
+
+@test "parta with no arguments" {
+    run parta
+    assert_output "ERROR: No arguments"
+    assert_failure
 }

@@ -37,10 +37,11 @@ int main(int argc, char* argv[]) {
     // [./parta; args1; args2]
     // skip argv[0]
     if (argc==1){ //argc is counter of arguments
-        fprintf(stderr, "ERROR No arguments");
+        fprintf(stderr, "ERROR: No arguments\n");
+        // printf("echo $");
         return 1; 
     }
-    printf("argc: %d\n",argc);
+    // printf("argc: %d\n",argc);
     char* temp;
     for (int i=1;i<argc;i++){
         if ((argc-1)==i){

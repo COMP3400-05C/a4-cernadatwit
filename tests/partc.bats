@@ -1,18 +1,10 @@
-setup() {
-    if [ -d "/usr/lib/bats" ]; then
-        load "/usr/lib/bats/bats-support/load"
-        load "/usr/lib/bats/bats-assert/load"
-    elif [ -d "/opt/homebrew/lib" ]; then
-        load "/opt/homebrew/lib/bats-support/load"
-        load "/opt/homebrew/lib/bats-assert/load"
-    elif [ -d "/usr/local/lib" ]; then
-        load "/usr/local/lib/bats-support/load"
-        load "/usr/local/lib/bats-assert/load"
-    fi
-    export BATS_TEST_TIMEOUT=10
+#!/usr/bin/env bats
+load 'test_helpers'
 
-    PATH="$(pwd)/build:$PATH"
+setup() {
+    export BATS_TEST_TIMEOUT=10
 }
+
 
 @test "partc fox tests/file1.txt" {
     run partc fox tests/file1.txt
