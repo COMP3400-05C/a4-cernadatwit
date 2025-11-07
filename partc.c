@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <string.h>
 
 
 // TODO: Include more header files (read the manpages to find out more!)
@@ -11,40 +12,59 @@
 The parent process will wait for the child process, which runs the program grep to complete. 
 If the child process is successful, print FOUND, if not, print an error message.
 */
-int main(int argc, const char* argv[]) {
+int main(int argc, char* argv[]) {
     // TODO: Complete and document
     if (argc != 3) {
-        printf("ERROR: No arguments");
+        write(2, "ERROR: No arguments", 20);
+        // write(2, "Usage: ./partc <word> <filename>\n", 33);
         return 1;
     }
-    int pid = fork();
-    if (pid == -1){
-        perror("fork");
+
+    char *word = argv[1];
+    char *filename = argv[2];
+
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        write(2, "Error: fork failed\n", 20);
         return 1;
     }
-    const char* w = argv[1];
-    const char* p = argv[2];
 
-    if (pid == 0){
-        char* grep_args[] = {"grep","-s","-q",w,p,NULL};
-        int execs = execv("usr/bin/grep",grep_args);
+    if (pid == 0) {
+        // Child process → run grep
+        char *exec_args[] = {"/usr/bin/grep", "-s", "-q", word, filename, NULL};
+        execv("/usr/bin/grep", exec_args);
 
-        if (execs==-1){
-            perror("exec");
-            return 1;
-        }
-    } else if (pid>0){
+        // If execv returns, it failed
+        write(2, "Error: exec failed\n", 20);
+        exit(3);
+    } else {
+        // Parent process → wait for child
         int status;
         wait(&status);
 
-        int exitcCode = WEXITSTATUS(status);
-        
-        if (exitcCode == 0) {
-            printf("FOUND: %s\n",w);
-        } else if (exitcCode == 1){
-            printf("NOT FOUND: %s\n",w);
-        } else {
-            printf("ERROR: %s doesn't exist\n",p);
+        if (WIFEXITED(status)) {
+            int exit_code = WEXITSTATUS(status);
+            if (exit_code == 0) {
+                // Found
+                write(1, "FOUND: ", 7);
+                write(1, word, strlen(word));
+                write(1, "\n", 1);
+            } else if (exit_code == 1) {
+                // Not found
+                write(1, "NOT FOUND: ", 11);
+                write(1, word, strlen(word));
+                write(1, "\n", 1);
+            } else if (exit_code == 2) {
+                // File not found
+                write(1, "ERROR: ", 7);
+                write(1, filename, strlen(filename));
+                write(1, " doesn't exist\n", 15);
+                return 2;
+            } else {
+                write(2, "Unknown error\n", 14);
+                return 3;
+            }
         }
     }
 
